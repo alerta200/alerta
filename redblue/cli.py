@@ -679,6 +679,21 @@ def _cmd_learn(rest) -> int:
     return 0
 
 
+def _require_pro(feature: str) -> bool:
+    """Loud upsell gate for Pro-only consultant features. Returns True to proceed, False if the
+    caller should stop (rc 2). Soft/honour gate — the source is open, so this nudges rather than
+    locks; real enforcement is the BUSL licence + the sealed defender-model weights (not in the repo)."""
+    if _license.is_commercial_authorized():
+        return True
+    print(_c("91", f"\n  ⛔  {feature} is a Nexus Pro feature."), file=sys.stderr)
+    print(_c("93", "  The consultant workflow — the co-pilot, retest / delta, compliance mapping and\n"
+                   "  licensed (un-watermarked) client reports — needs a Pro licence."), file=sys.stderr)
+    print(_c("90", "  Free covers assessing local / lab targets to evaluate the engine.\n"
+                   "  Activate:  nexus license add <token>       Licences:  "
+                   "https://github.com/alerta200/alerta"), file=sys.stderr)
+    return False
+
+
 def _cmd_retest(rest) -> int:
     """`nexus retest <old.json> <new.json>` — diff two assessments and report what changed.
 
@@ -697,6 +712,8 @@ def _cmd_retest(rest) -> int:
         a = p.parse_args(rest)
     except SystemExit as e:               # argparse prints usage/errors itself
         return int(e.code or 0)
+    if not _require_pro("nexus retest"):
+        return 2
     from . import retest
     try:
         old, t_old = retest.load_findings(a.old)
@@ -745,6 +762,8 @@ def _cmd_fixes(rest) -> int:
         a = p.parse_args(rest)
     except SystemExit as e:
         return int(e.code or 0)
+    if not _require_pro("nexus fixes"):
+        return 2
     from . import retest, deliverable, fixpack
     try:
         raw, target = retest.load_findings(a.report)
@@ -782,6 +801,8 @@ def _cmd_ask(rest) -> int:
         a = p.parse_args(rest)
     except SystemExit as e:
         return int(e.code or 0)
+    if not _require_pro("nexus ask"):
+        return 2
     from . import retest, deliverable, copilot
     try:
         raw, target = retest.load_findings(a.report)

@@ -8,8 +8,16 @@ test forces every class to carry one.
 
 import json
 
+import pytest
+
 from redblue import deliverable, findings, fixpack
 from redblue.cli import main
+
+
+@pytest.fixture(autouse=True)
+def _pro_licensed(monkeypatch):
+    # `nexus fixes` is Pro-gated; license the CLI tests so they exercise the plan, not the upsell.
+    monkeypatch.setattr("redblue.license.is_commercial_authorized", lambda *a, **k: True)
 
 
 def _msgs(*calls):
@@ -114,3 +122,10 @@ def test_deliverable_html_has_remediation_section():
          {"status": 500, "headers": {}, "body_preview": "SQL syntax error"})))
     assert "Remediation plan" in h and "Immediate" in h
     assert "<pre><code>" in h and "cur.execute" in h
+
+
+def test_cli_fixes_pro_gated_when_unlicensed(tmp_path, capsys, monkeypatch):
+    # the remediation plan is Pro-only: unlicensed → blocked with upsell, before any file is read.
+    monkeypatch.setattr("redblue.license.is_commercial_authorized", lambda *a, **k: False)
+    assert main(["fixes", str(tmp_path / "r.json")]) == 2
+    assert "Pro feature" in capsys.readouterr().err

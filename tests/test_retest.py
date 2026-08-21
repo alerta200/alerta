@@ -8,8 +8,16 @@ over the evidence-gated `--format json` artefacts.
 
 import json
 
+import pytest
+
 from redblue import retest
 from redblue.cli import main
+
+
+@pytest.fixture(autouse=True)
+def _pro_licensed(monkeypatch):
+    # `nexus retest` is Pro-gated; license the CLI tests so they exercise the diff, not the upsell.
+    monkeypatch.setattr("redblue.license.is_commercial_authorized", lambda *a, **k: True)
 
 
 def _doc(target, *finds):
@@ -107,3 +115,10 @@ def test_cli_retest_bad_file_fails_cleanly(tmp_path, capsys):
     rc = main(["retest", str(tmp_path / "nope.json"), str(tmp_path / "nope2.json")])
     assert rc == 1
     assert "could not read" in capsys.readouterr().err
+
+
+def test_cli_retest_pro_gated_when_unlicensed(tmp_path, capsys, monkeypatch):
+    # retest is Pro-only: unlicensed → blocked with upsell, before any file is read.
+    monkeypatch.setattr("redblue.license.is_commercial_authorized", lambda *a, **k: False)
+    assert main(["retest", str(tmp_path / "a.json"), str(tmp_path / "b.json")]) == 2
+    assert "Pro feature" in capsys.readouterr().err

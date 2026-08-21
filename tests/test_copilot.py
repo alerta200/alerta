@@ -9,8 +9,17 @@ useful answers and the refusal-to-invent.
 
 import json
 
+import pytest
+
 from redblue import copilot, deliverable, findings
 from redblue.cli import main
+
+
+@pytest.fixture(autouse=True)
+def _pro_licensed(monkeypatch):
+    # `nexus ask` is a Pro-gated feature; license the CLI tests so they exercise the co-pilot itself,
+    # not the upsell. A dedicated test below pins the unlicensed-block behaviour.
+    monkeypatch.setattr("redblue.license.is_commercial_authorized", lambda *a, **k: True)
 
 
 def _doc(target, *finds):
@@ -193,3 +202,12 @@ def test_cli_ask_absent_class_not_fabricated(tmp_path, capsys):
 def test_cli_ask_bad_file(tmp_path, capsys):
     assert main(["ask", str(tmp_path / "nope.json"), "summary"]) == 1
     assert "could not read" in capsys.readouterr().err
+
+
+def test_cli_ask_pro_gated_when_unlicensed(tmp_path, capsys, monkeypatch):
+    # the co-pilot is Pro-only: an unlicensed run is blocked with a loud upsell, not executed.
+    monkeypatch.setattr("redblue.license.is_commercial_authorized", lambda *a, **k: False)
+    rep = _write(tmp_path, _SQLI)
+    assert main(["ask", rep, "what do I fix first?"]) == 2
+    err = capsys.readouterr().err
+    assert "Pro feature" in err and "nexus license add" in err

@@ -234,6 +234,26 @@ the co-pilot cannot invent a finding the target didn't confirm. Ask it to *"expl
 no SQL injection was found and it tells you there's no evidence for one — rather than making one up.
 Offline; no model call. `nexus ask run.json` with no question lists what it can answer.
 
+## Free vs Pro
+
+Nexus is source-available (BUSL-1.1) and **free to evaluate** — run the full evidence-gated engine
+against your own local / lab targets. The **Pro** tier is for commercial consulting work.
+
+| | Free (community) | Pro |
+|---|---|---|
+| Evidence-gated assessment | ✓ local / lab targets | ✓ **+ external / public-internet targets** |
+| Findings — Markdown / JSON / SARIF | ✓ | ✓ |
+| Client deliverable (`--format html`) | watermarked (evaluation) | ✓ **un-watermarked, brandable** |
+| Co-pilot — `nexus ask` | — | ✓ |
+| Retest / delta — `nexus retest` | — | ✓ |
+| Remediation plan — `nexus fixes` | — | ✓ |
+| Compliance mapping (CWE / OWASP / PCI) | — | ✓ |
+| Tuned offline defender model | — | ✓ |
+
+Commercial use — assessing external targets or handing a client an un-watermarked report — requires a
+Pro licence: `nexus license add <token>`. (This is an honour-based, source-available model: the code
+is open, so the licence is legal + the tuned model weights ship only to licensees — not DRM.)
+
 ## Choose your brain
 
 Nexus is model-agnostic — the same tool-use loop runs on any of three brains:
