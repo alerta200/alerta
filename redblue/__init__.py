@@ -5,4 +5,13 @@ defender (severity, evidence, concrete remediation), acting ONLY inside an autho
 scope. The brain is a capable model (Claude Opus by default) driving a tool-use loop.
 """
 
-__version__ = "0.1.0"
+# Derive the version from the installed package metadata so it never drifts from pyproject again.
+# Falls back to a literal only when running from a source checkout that isn't pip-installed.
+try:
+    from importlib.metadata import PackageNotFoundError, version as _pkg_version
+    try:
+        __version__ = _pkg_version("nexus-sec")
+    except PackageNotFoundError:
+        __version__ = "0.1.2"
+except Exception:  # pragma: no cover - importlib.metadata is stdlib on 3.10+, this is belt-and-suspenders
+    __version__ = "0.1.2"

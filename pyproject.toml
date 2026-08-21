@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nexus-sec"
-version = "0.1.1"
+version = "0.1.2"
 description = "Nexus — autonomous red+blue security assessment: reasons like an attacker, reports like a defender, acts only in an authorized scope."
 readme = "README.md"
 requires-python = ">=3.10"
