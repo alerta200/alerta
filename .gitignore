@@ -1,0 +1,33 @@
+# Build / caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+.DS_Store
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MOAT — never publish. These live outside this curated repo; this block is a
+# belt-and-suspenders guard so they can never be added by accident later.
+# ─────────────────────────────────────────────────────────────────────────────
+data/                 # verifier-gated training data
+lab/                  # eval harnesses + local test targets
+train/                # LoRA trainers
+tools/                # operator tooling: licence keygen, crypto fulfilment, model packer
+*.jsonl               # datasets
+*.nxpack              # sealed model packages
+*.gguf                # model weights
+*.safetensors         # model weights
+adapter*/             # trained adapters
+
+# Secrets / operator-only — must never reach a public repo
+.nexus/
+*signing-key*.json    # the private RSA licence-signing key
+orders.json           # customer + payment records
+.pypirc
+.env
+NEXUS_*
+RELEASE.md            # internal release + fulfilment runbook
