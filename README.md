@@ -254,6 +254,33 @@ Commercial use — assessing external targets or handing a client an un-watermar
 Pro licence: `nexus license add <token>`. (This is an honour-based, source-available model: the code
 is open, so the licence is legal + the tuned model weights ship only to licensees — not DRM.)
 
+## The Pro model — the actual paid value
+
+For **offline / confidential** work — where you can't send a client's data to a cloud model —
+your free option is a *generic* local model. On real assessment, a generic 1.5B is close to
+useless: in a held-out benchmark it stayed pinned at two passive findings per run and **never
+actually exploited anything**.
+
+Nexus Pro ships a **security-tuned model** — same size, same offline box, but trained (on its own
+teacher-distilled trajectories, under an evidence scorer where fabrication is impossible) to
+*actively test and confirm* vulnerabilities:
+
+| offline brain | recall — held-out (N=12) | recall — OOD, unseen app | fabricated |
+|---|:---:|:---:|:---:|
+| generic 1.5B (the free local option) | 35% | 28% | 0 |
+| **Nexus Pro tuned model** | **95%** | **71%** | 0 |
+
+- **Fabrication is impossible** — a finding counts only if the live server's response confirms it;
+  `fp=0` on both arms. Neither brain hallucinates — the tuned one just *finds more real bugs*.
+- **OOD** — the 71% is on a *different* deliverable app it never trained on. Generalization, not
+  memorization.
+- **Reproducible & deterministic** — greedy decode, bit-for-bit: `python lab/ood_eval.py base devportal`
+  vs `python lab/ood_eval.py <adapter> devportal`.
+
+That's the paid value in one line: **not a code unlock (the code is open) — the offline brain that
+actually does the job**, plus ongoing retrains and commercial-use rights. The weights aren't in this
+repo; they ship, sealed, only to licensees.
+
 ## Choose your brain
 
 Nexus is model-agnostic — the same tool-use loop runs on any of three brains:
