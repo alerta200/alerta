@@ -12,6 +12,13 @@
 > response the target actually gave**. No hallucinated vulns, whatever model drives it.
 > `pip install nexus-sec`
 
+<p align="center">
+  <img src="docs/evidence-gate.gif" width="620"
+       alt="A small offline model claims 5 vulnerabilities in its report; Nexus reports only the one the target's own response proves. The other four — including a fabricated AWS key and a user-database dump the server actually answered 401 to — are structurally excluded, because the report is built from tool results, never the model's prose.">
+</p>
+
+<p align="center"><sub>The model claimed <b>5</b> vulnerabilities. Nexus reported the <b>one</b> the target's own response proved — the other four (a fabricated AWS key, a "user-database dump" the server answered <code>401</code> to, an untested TLS claim, an unobserved stack trace) can't reach the report. Not filtered afterward — structurally excluded. Reproduce: <code>python lab/evidence_gate_demo.py</code></sub></p>
+
 Nexus reasons like an attacker (recon → enumerate → probe for real weaknesses) and
 reports like a defender (severity, evidence, concrete remediation) — and it acts **only
 inside an authorized scope you declare up front**. It is a tool for assessing *your own*
@@ -362,3 +369,26 @@ AI-assistant chat mode, and the **defender** (host/estate posture, the two-tier 
 confirm-first remediation) all work and are covered by 285 tests. Proven end-to-end on a live
 external target, on OWASP Juice Shop, and — locally, driving the console with a free Ollama
 model — finding real path-traversal and reflected-XSS with zero fabricated findings.
+
+## Try it in 60 seconds
+
+```bash
+pip install nexus-sec
+nexus --target 127.0.0.1:8080 --scope 127.0.0.1 --authorized   # a lab box you own
+```
+
+No API key needed — on first run `nexus` starts a local Ollama model for you. Point it at a
+target you own or have written permission to test, and read a report where every finding is
+backed by a response the target actually gave.
+
+## Feedback & design partners
+
+Nexus is early, and I want it pressure-tested by people who do this for a living. The most
+useful feedback: where the **evidence gate** is *too strict* — a real bug it refused to credit
+because the target's response didn't prove it cleanly — or a class of weakness it structurally
+can't see. That trade-off (false negatives over fabrication) is deliberate, but I want to map
+exactly where it costs you.
+
+If you're a solo pentester or a small shop and this fits how you work, I'm looking for a few
+**design partners** — early users who shape where it goes. Open an issue:
+**https://github.com/alerta200/alerta/issues**
